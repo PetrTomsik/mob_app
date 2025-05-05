@@ -1,21 +1,18 @@
-
-import mysql
+from kivy.lang import Builder
+from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
-
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-
-from kivy.lang import Builder
-from kivymd.app import MDApp
-from kivymd.uix.screen import MDScreen
-
-from config import DB_CONFIG
-from database import create_task
-import shutil
+from kivy.uix.filechooser import FileChooserListView
+from kivy.uix.button import Button
 import os
+import shutil
+import mysql.connector
+from config import DB_CONFIG
 
 Builder.load_file('ui.kv')
+
 
 class MainLayout(BoxLayout):
     selected_image_path = ""
@@ -34,11 +31,40 @@ class MainLayout(BoxLayout):
     def dismiss_popup(self):
         self._popup.dismiss()
 
-    def show_tasks(self):
-        # Vyčisti předchozí seznam
-        self.ids.tasks_container.clear_widgets()
+    def save_task(self):
+        title = self.ids.title_input.text
+        description = self.ids.description_input.text
+        image_path = self.selected_image_path
 
-        # Připoj se k databázi
+        if not title or not description or not image_path:
+            print("Prosím vyplňte všechna pole a vyberte obrázek.")
+            return
+
+        if not os.path.exists('images'):
+            os.makedirs('images')
+        image_filename = os.path.basename(image_path)
+        destination = os.path.join('images', image_filename)
+        shutil.copy(image_path, destination)
+
+        try:
+            conn = mysql.connector.connect(**DB_CONFIG)
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO tasks (title, description, image_path) VALUES (%s, %s, %s)",
+                (title, description, destination)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+            print("Úkol byl úspěšně uložen.")
+            self.ids.title_input.text = ""
+            self.ids.description_input.text = ""
+            self.selected_image_path = ""
+        except mysql.connector.Error as err:
+            print(f"Chyba při ukládání úkolu: {err}")
+
+    def show_tasks(self):
+        self.ids.tasks_container.clear_widgets()
         try:
             conn = mysql.connector.connect(**DB_CONFIG)
             cursor = conn.cursor()
@@ -50,56 +76,42 @@ class MainLayout(BoxLayout):
             print(f"Chyba při načítání úkolů: {err}")
             return
 
-        # Zobraz úkoly
         for title, description, image_path in tasks:
             task_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=100, spacing=10)
-
-            # Obrázek
             if image_path and os.path.exists(image_path):
                 img = Image(source=image_path, size_hint=(None, 1), width=100)
             else:
                 img = Image(size_hint=(None, 1), width=100)
-
-            # Popis
             text_box = BoxLayout(orientation='vertical')
             text_box.add_widget(Label(text=title, bold=True))
             text_box.add_widget(Label(text=description))
-
             task_box.add_widget(img)
             task_box.add_widget(text_box)
-
             self.ids.tasks_container.add_widget(task_box)
 
-    def save_task(self):
-        title = self.ids.title_input.text
-        description = self.ids.description_input.text
-        image_path = self.selected_image_path
-
-        if title and description and image_path:
-            if not os.path.exists('images'):
-                os.makedirs('images')
-            image_filename = os.path.basename(image_path)
-            destination = os.path.join('images', image_filename)
-            shutil.copy(image_path, destination)
-            create_task(title, description, destination)
-            print("Úkol uložen.")
-        else:
-            print("Prosím, vyplňte všechny údaje a vyberte obrázek.")
 
 class FileChooserPopup(BoxLayout):
     def __init__(self, select, cancel, **kwargs):
         super().__init__(**kwargs)
         self.select = select
         self.cancel = cancel
+        self.orientation = 'vertical'
+        self.filechooser = FileChooserListView(filters=['*.jpg', '*.jpeg', '*.png'])
+        self.filechooser.bind(on_submit=self._file_selected)
+        self.add_widget(self.filechooser)
+        cancel_button = Button(text="Zrušit", size_hint_y=None, height=40)
+        cancel_button.bind(on_press=lambda instance: self.cancel())
+        self.add_widget(cancel_button)
 
-class MainLayout(MDScreen):
-    pass
+    def _file_selected(self, filechooser, selection, touch):
+        if selection:
+            self.select(selection)
 
-class TaskApp(MDApp):
+
+class TaskApp(App):
     def build(self):
-        self.theme_cls.primary_palette = "Blue"
-        self.theme_cls.theme_style = "Light"
-        return Builder.load_file("ui.kv")
+        return MainLayout()
+
 
 if __name__ == '__main__':
     TaskApp().run()

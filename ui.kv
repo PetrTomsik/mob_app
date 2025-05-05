@@ -18,6 +18,7 @@
     Button:
         text: "Uložit úkol"
         on_press: root.save_task()
+
     Button:
         text: "Zobrazit seznam úkolů"
         on_press: root.show_tasks()
@@ -32,15 +33,3 @@
             height: self.minimum_height
             spacing: 10
             padding: 10
-
-<FileChooserPopup>:
-    orientation: 'vertical'
-    FileChooserListView:
-        id: filechooser
-        filters: ['*.jpg', '*.jpeg', '*.png']
-        on_selection: root.select(self.selection)
-    Button:
-        text: "Zrušit"
-        size_hint_y: None
-        height: 40
-        on_press: root.cancel()
