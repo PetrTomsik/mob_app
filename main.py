@@ -1,6 +1,5 @@
 from kivy.lang import Builder
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.filechooser import FileChooserListView
@@ -8,6 +7,7 @@ from kivy.uix.button import Button
 import os
 import shutil
 import mysql.connector
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.label import Label
 
@@ -20,6 +20,22 @@ class MainLayout(BoxLayout):
     selected_image_path = ""
     selected_names = []
 
+    def add_name(self, name):
+        if name.strip() == "":
+            return
+
+        grid = self.ids.names_grid
+        box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
+
+        checkbox = CheckBox()
+        setattr(checkbox, "assigned_name", name)
+        checkbox.bind(active=self.on_checkbox_active)
+
+        label = Label(text=name)
+        box.add_widget(label)
+        box.add_widget(checkbox)
+        grid.add_widget(box)
+
     def open_filechooser(self):
         content = FileChooserPopup(select=self.set_image_path, cancel=self.dismiss_popup)
         self._popup = Popup(title="Vyber obrázek", content=content, size_hint=(0.9, 0.9))
@@ -31,16 +47,28 @@ class MainLayout(BoxLayout):
             checkbox = CheckBox()
             checkbox.bind(active=self.on_checkbox_active)
             label = Label(text=name)
-            grid.add_widget(checkbox)
             grid.add_widget(label)
+            grid.add_widget(checkbox)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.populate_names(["Petr", "Karel", "Anna", "Lucie"])
+        self.populate_names(["Petr", "Matěj", "Taťka", "Onrda"])
 
     def on_checkbox_active(self, checkbox, value):
-        label = checkbox.parent.children[0]
-        name = label.text
+        grid = checkbox.parent.children
+        name = None
+
+        for i in range(0, len(grid), 2):
+            checkbox = grid[i]
+            label = grid[i + 1]
+
+            if checkbox.active:
+                name = label.text
+                break
+
+        if not name:
+            return  # pokud není jméno, ignoruj kliknutí
+
         if value:
             if name not in self.selected_names:
                 self.selected_names.append(name)

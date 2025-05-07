@@ -16,6 +16,24 @@
         row_default_height: 40
         row_force_default: True
 
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: None
+        height: 40
+        spacing: 10
+
+    TextInput:
+        id: new_name_input
+        size_hint_y: None
+        hint_text: "Nové jméno"
+
+    Button:
+        size_hint_y: None
+        text: "Přidat jméno"
+        on_press:
+            root.add_name(new_name_input.text)
+            new_name_input.text = ""
+
     TextInput:
         id: title_input
         hint_text: "Název úkolu"
