@@ -32,8 +32,9 @@ class MainLayout(BoxLayout):
         checkbox.bind(active=self.on_checkbox_active)
 
         label = Label(text=name)
-        box.add_widget(label)
+
         box.add_widget(checkbox)
+        box.add_widget(label)
         grid.add_widget(box)
 
     def open_filechooser(self):
@@ -58,6 +59,7 @@ class MainLayout(BoxLayout):
         grid = checkbox.parent.children
         name = None
 
+        # V GridLayout se widgety ukládají v opačném pořadí, než byly přidány
         for i in range(0, len(grid), 2):
             checkbox = grid[i]
             label = grid[i + 1]
@@ -91,30 +93,44 @@ class MainLayout(BoxLayout):
         description = self.ids.description_input.text
         image_path = self.selected_image_path
 
-        if not title or not description or not image_path:
-            print("Prosím vyplňte všechna pole a vyberte obrázek.")
+        # získej vybraného pracovníka (použijeme prvního z vybraných)
+        if self.selected_names:
+            worker_name = self.selected_names[0]
+            worker_id = self.get_worker_id_by_name(worker_name)
+        else:
+            worker_id = None
+
+        if not title or not description:
+            print("Vyplň název a popis úkolu.")
             return
 
-        if not os.path.exists('images'):
-            os.makedirs('images')
-        image_filename = os.path.basename(image_path)
-        destination = os.path.join('images', image_filename)
-        shutil.copy(image_path, destination)
+        if image_path:
+            # zkopíruj obrázek do složky images
+            if not os.path.exists('images'):
+                os.makedirs('images')
+            image_filename = os.path.basename(image_path)
+            destination = os.path.join('images', image_filename)
+            shutil.copy(image_path, destination)
+        else:
+            destination = None
 
         try:
             conn = mysql.connector.connect(**DB_CONFIG)
             cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO tasks (title, description, image_path) VALUES (%s, %s, %s)",
-                (title, description, destination)
-            )
+            cursor.execute("""
+                INSERT INTO tasks (title, description, image_path, assigned_to)
+                VALUES (%s, %s, %s, %s)
+            """, (title, description, destination, worker_id))
             conn.commit()
             cursor.close()
             conn.close()
-            print("Úkol byl úspěšně uložen.")
+
+            print("Úkol uložen.")
             self.ids.title_input.text = ""
             self.ids.description_input.text = ""
             self.selected_image_path = ""
+            self.selected_names = []
+
         except mysql.connector.Error as err:
             print(f"Chyba při ukládání úkolu: {err}")
 
