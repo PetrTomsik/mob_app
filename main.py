@@ -2,13 +2,15 @@ from kivy.lang import Builder
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
-from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.button import Button
 import os
 import shutil
 import mysql.connector
+from kivy.uix.checkbox import CheckBox
+from kivy.uix.label import Label
+
 from config import DB_CONFIG
 
 Builder.load_file('ui.kv')
@@ -16,11 +18,36 @@ Builder.load_file('ui.kv')
 
 class MainLayout(BoxLayout):
     selected_image_path = ""
+    selected_names = []
 
     def open_filechooser(self):
         content = FileChooserPopup(select=self.set_image_path, cancel=self.dismiss_popup)
         self._popup = Popup(title="Vyber obrázek", content=content, size_hint=(0.9, 0.9))
         self._popup.open()
+
+    def populate_names(self, names_list):
+        grid = self.ids.names_grid
+        for name in names_list:
+            checkbox = CheckBox()
+            checkbox.bind(active=self.on_checkbox_active)
+            label = Label(text=name)
+            grid.add_widget(checkbox)
+            grid.add_widget(label)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.populate_names(["Petr", "Karel", "Anna", "Lucie"])
+
+    def on_checkbox_active(self, checkbox, value):
+        label = checkbox.parent.children[0]
+        name = label.text
+        if value:
+            if name not in self.selected_names:
+                self.selected_names.append(name)
+        else:
+            if name in self.selected_names:
+                self.selected_names.remove(name)
+        print(f"Vybraná jména: {', '.join(self.selected_names)}")
 
     def set_image_path(self, selection):
         if selection:
