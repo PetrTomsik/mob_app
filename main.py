@@ -3,56 +3,52 @@ from kivy.app import App
 from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.filechooser import FileChooserListView
-from kivy.uix.button import Button
+from kivy.clock import Clock
 import os
 import shutil
 import mysql.connector
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.label import Label
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.button import Button
 
 from config import DB_CONFIG
 
-Builder.load_file('ui.kv')
+
+class FileChooserPopup(BoxLayout):
+    def __init__(self, select, cancel, **kwargs):
+        super().__init__(**kwargs)
+        self.select = select
+        self.cancel = cancel
+        self.orientation = 'vertical'
+        self.filechooser = FileChooserListView(filters=['*.jpg', '*.jpeg', '*.png'])
+        self.filechooser.bind(on_submit=self._file_selected)
+        self.add_widget(self.filechooser)
+        cancel_button = Button(text="Zrušit", size_hint_y=None, height=40)
+        cancel_button.bind(on_press=lambda instance: self.cancel())
+        self.add_widget(cancel_button)
+
+    def _file_selected(self, filechooser, selection, touch):
+        if selection:
+            self.select(selection)
 
 
 class MainLayout(BoxLayout):
     selected_image_path = ""
     selected_names = []
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Clock.schedule_once(self._finish_init)
 
-
-    def add_name(self, name):
-        if name.strip() == "":
-            return
-
-        grid = self.ids.names_grid
-        box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-
-        checkbox = CheckBox()
-        setattr(checkbox, "assigned_name", name)
-        checkbox.bind(active=self.on_checkbox_active)
-
-        label = Label(text=name)
-
-        box.add_widget(checkbox)
-        box.add_widget(label)
-        grid.add_widget(box)
+    def _finish_init(self, dt):
+        self.refresh_worker_checkboxes()
 
     def open_filechooser(self):
         content = FileChooserPopup(select=self.set_image_path, cancel=self.dismiss_popup)
         self._popup = Popup(title="Vyber obrázek", content=content, size_hint=(0.9, 0.9))
         self._popup.open()
-
-    def populate_names(self, names_list):
-        grid = self.ids.names_grid
-        for name in names_list:
-            checkbox = CheckBox()
-            checkbox.bind(active=self.on_checkbox_active)
-            label = Label(text=name)
-            grid.add_widget(label)
-            grid.add_widget(checkbox)
-
 
     def get_worker_id_by_name(self, name):
         try:
@@ -90,11 +86,6 @@ class MainLayout(BoxLayout):
 
         except mysql.connector.Error as err:
             print(f"❌ Chyba při načítání pracovníků: {err}")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.refresh_worker_checkboxes()
-        #self.populate_names(["Petr", "Matěj", "Taťka", "Onrda"])
 
     def on_checkbox_active(self, checkbox, value):
         grid = checkbox.parent.children
@@ -135,11 +126,11 @@ class MainLayout(BoxLayout):
         image_path = self.selected_image_path
 
         if self.selected_names:
-            worker_id = self.get_worker_id_by_name(self.selected_names[0])
+            worker_ids = [self.get_worker_id_by_name(name) for name in self.selected_names if name]
         else:
-            worker_id = None
+            worker_ids = None
 
-        if not title or not description or not image_path or not worker_id:
+        if not title or not description or not image_path or not worker_ids:
             print("❗ Vyplň všechna pole a vyber alespoň jedno jméno.")
             return
 
@@ -154,9 +145,15 @@ class MainLayout(BoxLayout):
             conn = mysql.connector.connect(**DB_CONFIG)
             cursor = conn.cursor()
             cursor.execute("""
-                   INSERT INTO tasks (title, description, image_path, assigned_to)
-                   VALUES (%s, %s, %s, %s)
-               """, (title, description, destination, worker_id))
+                INSERT INTO tasks (title, description, image_path)
+                VALUES (%s, %s, %s)
+            """, (title, description, destination))
+
+            task_id = cursor.lastrowid
+
+            for wid in worker_ids:
+                cursor.execute("INSERT INTO task_workers (task_id, worker_id) VALUES (%s, %s)", (task_id, wid))
+
             conn.commit()
             cursor.close()
             conn.close()
@@ -175,57 +172,93 @@ class MainLayout(BoxLayout):
         try:
             conn = mysql.connector.connect(**DB_CONFIG)
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT t.title, t.description, t.image_path, w.name
-                FROM tasks t
-                LEFT JOIN workers w ON t.assigned_to = w.id
-            """)
-            tasks = cursor.fetchall()
-            cursor.close()
-            conn.close()
 
-            for title, description, image_path, worker_name in tasks:
-                task_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=100, spacing=10)
+            # Nejprve načteme všechny úkoly
+            cursor.execute("""
+                       SELECT id, title, description, image_path, datum
+                       FROM tasks
+                       ORDER BY datum DESC
+                   """)
+            tasks = cursor.fetchall()
+
+            for task_id, title, description, image_path, datum in tasks:
+                # Zjistíme všechna jména pracovníků přiřazených k tomuto úkolu
+                cursor.execute("""
+                          SELECT w.name FROM workers w
+                          JOIN task_workers tw ON w.id = tw.worker_id
+                          WHERE tw.task_id = %s
+                      """, (task_id,))
+                names = [row[0] for row in cursor.fetchall()]
+                names_text = ", ".join(names) if names else "Neurčeno"
+
+                # Vykreslení jednoho úkolu
+                task_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=120, spacing=10)
+
+                # obrázek (pokud existuje)
                 if image_path and os.path.exists(image_path):
                     img = Image(source=image_path, size_hint=(None, 1), width=100)
                 else:
                     img = Image(size_hint=(None, 1), width=100)
 
+                # textová část
                 text_box = BoxLayout(orientation='vertical')
-                text_box.add_widget(Label(text=title))
+                text_box.add_widget(Label(text=title, bold=True))
                 text_box.add_widget(Label(text=description))
-                text_box.add_widget(Label(text=f"Přiřazeno: {worker_name or 'Neurčeno'}"))
+                text_box.add_widget(Label(text=f"Přiřazeno: {names_text}"))
+                text_box.add_widget(Label(text=f"Vytvořeno: {datum.strftime('%d.%m.%Y %H:%M')}"))
 
                 task_box.add_widget(img)
                 task_box.add_widget(text_box)
-
                 self.ids.tasks_container.add_widget(task_box)
+
+            cursor.close()
+            conn.close()
 
         except mysql.connector.Error as err:
             print(f"❌ Chyba při načítání úkolů: {err}")
 
 
-class FileChooserPopup(BoxLayout):
-    def __init__(self, select, cancel, **kwargs):
-        super().__init__(**kwargs)
-        self.select = select
-        self.cancel = cancel
-        self.orientation = 'vertical'
-        self.filechooser = FileChooserListView(filters=['*.jpg', '*.jpeg', '*.png'])
-        self.filechooser.bind(on_submit=self._file_selected)
-        self.add_widget(self.filechooser)
-        cancel_button = Button(text="Zrušit", size_hint_y=None, height=40)
-        cancel_button.bind(on_press=lambda instance: self.cancel())
-        self.add_widget(cancel_button)
+class MainScreen(Screen):
+    pass
 
-    def _file_selected(self, filechooser, selection, touch):
-        if selection:
-            self.select(selection)
+
+class AddWorkerScreen(Screen):
+    def save_worker(self):
+        name = self.ids.new_worker_name.text
+        age = self.ids.new_worker_age.text
+
+        if name.strip() and age.isdigit():
+            try:
+                conn = mysql.connector.connect(**DB_CONFIG)
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO workers (name, vek) VALUES (%s, %s)", (name, int(age)))
+                conn.commit()
+                cursor.close()
+                conn.close()
+                print(f"✅ Pracovník '{name}' uložen.")
+            except mysql.connector.Error as err:
+                print(f"❌ Chyba při ukládání pracovníka: {err}")
+
+        # přepnout zpět a aktualizovat jména
+        self.ids.new_worker_name.text = ""
+        self.ids.new_worker_age.text = ""
+        self.manager.current = "main"
+
+        # najdeme MainLayout a zavoláme jeho refresh
+        main_screen = self.manager.get_screen("main")
+        main_layout = main_screen.children[0]  # protože MainLayout je přímé dítě MainScreen
+        main_layout.refresh_worker_checkboxes()
+
+
+Builder.load_file('ui.kv')
 
 
 class TaskApp(App):
     def build(self):
-        return MainLayout()
+        sm = ScreenManager()
+        sm.add_widget(MainScreen(name="main"))
+        sm.add_widget(AddWorkerScreen(name="add_worker"))
+        return sm
 
 
 if __name__ == '__main__':

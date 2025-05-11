@@ -1,3 +1,13 @@
+ScreenManager:
+    MainScreen:
+        name: "main"
+    AddWorkerScreen:
+        name: "add_worker"
+
+<MainScreen>:
+    MainLayout:
+        id: main_layout
+
 <MainLayout>:
     orientation: 'vertical'
     padding: 20
@@ -15,6 +25,13 @@
         height: self.minimum_height
         row_default_height: 40
         row_force_default: True
+
+    Button:
+        text: "+"
+        font_size: 24
+        size_hint_y: None
+        height: 40
+        on_press: app.root.current = "add_worker"
 
     TextInput:
         id: title_input
@@ -56,6 +73,43 @@
             spacing: 10
             padding: 10
 
+<AddWorkerScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+
+        Label:
+            text: "Přidat nového pracovníka"
+            font_size: 20
+            size_hint_y: None
+            height: 30
+
+        TextInput:
+            id: new_worker_name
+            hint_text: "Jméno pracovníka"
+            size_hint_y: None
+            height: 40
+
+        TextInput:
+            id: new_worker_age
+            hint_text: "Věk"
+            input_filter: "int"
+            size_hint_y: None
+            height: 40
+
+        Button:
+            text: "Uložit pracovníka"
+            size_hint_y: None
+            height: 40
+            on_press: root.save_worker()
+
+        Button:
+            text: "Zpět"
+            size_hint_y: None
+            height: 40
+            on_press: app.root.current = "main"
+
 <FileChooserPopup>:
     orientation: 'vertical'
     FileChooserListView:
@@ -64,5 +118,6 @@
         on_selection: root.select(self.selection)
     Button:
         text: "Zrušit"
+        size_hint_y: None
         height: 40
         on_press: root.cancel()
