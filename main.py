@@ -6,6 +6,7 @@ from kivy.uix.filechooser import FileChooserListView
 from kivy.clock import Clock
 import os
 import shutil
+import requests
 import mysql.connector
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.checkbox import CheckBox
@@ -63,50 +64,54 @@ class MainLayout(BoxLayout):
             return None
 
     def refresh_worker_checkboxes(self):
+        # API URL – zadej IP počítače, kde běží Flask server
+        api_url = "http://192.168.50.189:5000/workers"
+
         try:
-            conn = mysql.connector.connect(**DB_CONFIG)
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM workers")
-            workers = cursor.fetchall()
-            cursor.close()
-            conn.close()
+            response = requests.get(api_url)
+            if response.status_code != 200:
+                print(f"❌ Chyba API: {response.status_code}")
+                return
+            workers = response.json()
+        except Exception as e:
+            print(f"❌ Nepodařilo se připojit k API: {e}")
+            return
 
-            self.ids.names_grid.clear_widgets()
-            self.selected_names = []
+        self.ids.names_grid.clear_widgets()
+        self.selected_names = []
 
-            for (name,) in workers:
-                row = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-                checkbox = CheckBox()
-                setattr(checkbox, "assigned_name", name)
-                checkbox.bind(active=self.on_checkbox_active)
-                label = Label(text=name)
-                row.add_widget(checkbox)
-                row.add_widget(label)
-                self.ids.names_grid.add_widget(row)
+        for worker in workers:
+            name = worker["name"]
 
-        except mysql.connector.Error as err:
-            print(f"❌ Chyba při načítání pracovníků: {err}")
+            row = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
+            checkbox = CheckBox()
+            checkbox.assigned_name = name
+            checkbox.bind(active=self.on_checkbox_active)
+
+            label = Label(text=name)
+
+            row.add_widget(checkbox)
+            row.add_widget(label)
+            self.ids.names_grid.add_widget(row)
+
 
     def on_checkbox_active(self, checkbox, value):
-        grid = checkbox.parent.children
-        name = None # getattr(checkbox, "assigned_name", None)
+        parent_box = checkbox.parent
 
-        # V GridLayout se widgety ukládají v opačném pořadí, než byly přidány
-        for i in range(1, len(grid), 2):
-            checkbox = grid[i]
-
-            if checkbox.active:
-                label = grid[i - 1]
-                name = label.text
+        name = None
+        for widget in parent_box.children:
+            if isinstance(widget, Label):
+                name = widget.text
                 break
 
-        if not name:
-            return  # pokud není jméno, ignoruj kliknutí
+        # if not name:
+        #     return  # pokud není jméno, ignoruj kliknutí
 
         if value:
             if name not in self.selected_names:
                 self.selected_names.append(name)
         else:
+
             if name in self.selected_names:
                 self.selected_names.remove(name)
         print(f"Vybraná jména: {', '.join(self.selected_names)}")
