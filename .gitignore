@@ -1,3 +1,10 @@
 heslo.txt
 
 images
+.idea
+
+__pycache__
+*pyc
+
+.DS_Store
+*.l
