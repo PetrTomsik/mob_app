@@ -65,7 +65,7 @@ class MainLayout(BoxLayout):
 
     def refresh_worker_checkboxes(self):
         # API URL – zadej IP počítače, kde běží Flask server
-        api_url = "http://192.168.50.189:5000/workers"
+        api_url = "http://192.168.1.130:5000/workers"
 
         try:
             response = requests.get(api_url)
