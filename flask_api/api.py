@@ -5,6 +5,10 @@ import os
 import sys
 from config import DB_CONFIG
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from config import DB_CONFIG
+
 app = Flask(__name__)
 CORS(app)
 
