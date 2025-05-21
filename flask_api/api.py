@@ -3,7 +3,6 @@ from flask_cors import CORS
 import mysql.connector
 import os
 import sys
-from config import DB_CONFIG
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
