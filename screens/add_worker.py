@@ -1,4 +1,9 @@
 from kivy.uix.screenmanager import Screen
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.uix.boxlayout import BoxLayout
+import requests
+
 import mysql.connector
 from config import DB_CONFIG
 
@@ -10,23 +15,24 @@ class AddWorkerScreen(Screen):
 
         if name.strip() and age.isdigit():
             try:
-                conn = mysql.connector.connect(**DB_CONFIG)
-                cursor = conn.cursor()
-                cursor.execute("INSERT INTO workers (name, vek) VALUES (%s, %s)", (name, int(age)))
-                conn.commit()
-                cursor.close()
-                conn.close()
-                print(f"✅ Pracovník '{name}' uložen.")
-            except mysql.connector.Error as err:
-                print(f"❌ Chyba při ukládání pracovníka: {err}")
+                response = requests.post(
+                    "http://192.168.1.121:5000/workers",
+                    json={"name": name, "vek": int(age)}
+                )
+                if response.status_code == 201:
+                    self.show_popup("Úspěch", f"Pracovník '{name}' byl uložen.")
+                else:
+                    self.show_popup("Chyba", f"Chyba API: {response.text}")
+            except Exception as e:
+                self.show_popup("Chyba", f"Nelze se připojit k API: {e}")
+        else:
+            self.show_popup("Neplatná data", "Zadej platné jméno a věk.")
 
-        # přepnout zpět a aktualizovat jména
         self.ids.new_worker_name.text = ""
         self.ids.new_worker_age.text = ""
-        self.manager.current = "main"
 
-        # najdeme MainLayout a zavoláme jeho refresh
-        main_screen = self.manager.get_screen("main")
-        main_layout = main_screen.children[0]  # protože MainLayout je přímé dítě MainScreen
-        main_layout.refresh_worker_checkboxes()
-
+    def show_popup(self, title, message):
+        box = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        box.add_widget(Label(text=message))
+        popup = Popup(title=title, content=box, size_hint=(0.7, 0.3))
+        popup.open()

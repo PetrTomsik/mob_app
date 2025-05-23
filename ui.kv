@@ -1,80 +1,44 @@
 ScreenManager:
-    id: screen_manager
     MainScreen:
+        name: "main"
     AddWorkerScreen:
+        name: "add_worker"
+    TaskListScreen:
+        name: "task_list"
+    CreateTaskScreen:
+        name: "create_task"
 
 <MainScreen>:
-    name: "main"
-    MainLayout:
-        id: main_layout
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
 
-<MainLayout>:
-    orientation: 'vertical'
-    padding: 20
-    spacing: 10
-
-    Label:
-        text: "Vyber jména:"
-        size_hint_y: None
-        height: 30
-
-    GridLayout:
-        id: names_grid
-        cols: 1
-        size_hint_y: None
-        height: self.minimum_height
-        row_default_height: 40
-        row_force_default: True
-
-    Button:
-        text: "+"
-        font_size: 24
-        size_hint_y: None
-        height: 40
-        on_press: app.root.current = "add_worker"
-
-    TextInput:
-        id: title_input
-        hint_text: "Název úkolu"
-        size_hint_y: None
-        height: 40
-
-    TextInput:
-        id: description_input
-        hint_text: "Popis úkolu"
-        size_hint_y: None
-        height: 80
-
-    Button:
-        text: "Vybrat obrázek"
-        size_hint_y: None
-        height: 40
-        on_press: root.open_filechooser()
-
-    Button:
-        text: "Uložit úkol"
-        size_hint_y: None
-        height: 40
-        on_press: root.save_task()
-
-    Button:
-        text: "Zobrazit seznam úkolů"
-        size_hint_y: None
-        height: 40
-        on_press: root.show_tasks()
-
-    ScrollView:
-        size_hint: (1, 1)
-        GridLayout:
-            id: tasks_container
-            cols: 1
+        Label:
+            text: "Hlavní menu"
+            font_size: 24
             size_hint_y: None
-            height: self.minimum_height
-            spacing: 10
-            padding: 10
+            height: 50
+
+        Button:
+            text: "➕ Přidat pracovníka"
+            size_hint_y: None
+            height: 50
+            on_press: app.root.current = "add_worker"
+
+        Button:
+            text: "📋 Zobrazit úkoly"
+            size_hint_y: None
+            height: 50
+            on_press: app.root.current = "task_list"
+
+        Button:
+            text: "📝 Vytvořit úkol"
+            size_hint_y: None
+            height: 50
+            on_press: app.root.current = "create_task"
 
 <AddWorkerScreen>:
-    name: "add_worker"
     BoxLayout:
         orientation: 'vertical'
         padding: 20
@@ -111,14 +75,85 @@ ScreenManager:
             height: 40
             on_press: app.root.current = "main"
 
-<FileChooserPopup>:
-    orientation: 'vertical'
-    FileChooserListView:
-        id: filechooser
-        filters: ['*.jpg', '*.jpeg', '*.png']
-        on_selection: root.select(self.selection)
-    Button:
-        text: "Zrušit"
-        size_hint_y: None
-        height: 40
-        on_press: root.cancel()
+<TaskListScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+
+        Label:
+            text: "Seznam úkolů"
+            font_size: 20
+            size_hint_y: None
+            height: 40
+
+        Button:
+            text: "Načíst úkoly"
+            size_hint_y: None
+            height: 40
+            on_press: root.show_tasks()
+
+        ScrollView:
+            GridLayout:
+                id: tasks_container
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 10
+                padding: 10
+
+        Button:
+            text: "Zpět"
+            size_hint_y: None
+            height: 40
+            on_press: app.root.current = "main"
+
+<CreateTaskScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+
+        Label:
+            text: "Vytvořit nový úkol"
+            font_size: 20
+            size_hint_y: None
+            height: 40
+
+        GridLayout:
+            id: names_grid
+            cols: 1
+            size_hint_y: None
+            height: self.minimum_height
+            row_default_height: 40
+            row_force_default: True
+
+        TextInput:
+            id: title_input
+            hint_text: "Název úkolu"
+            size_hint_y: None
+            height: 40
+
+        TextInput:
+            id: description_input
+            hint_text: "Popis úkolu"
+            size_hint_y: None
+            height: 80
+
+        Button:
+            text: "Vybrat obrázek"
+            size_hint_y: None
+            height: 40
+            on_press: root.open_filechooser()
+
+        Button:
+            text: "Uložit úkol"
+            size_hint_y: None
+            height: 40
+            on_press: root.save_task()
+
+        Button:
+            text: "Zpět"
+            size_hint_y: None
+            height: 40
+            on_press: app.root.current = "main"
