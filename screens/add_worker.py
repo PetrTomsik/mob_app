@@ -6,6 +6,7 @@ import requests
 
 import mysql.connector
 from config import DB_CONFIG
+from local_ip import get_local_ip
 
 
 class AddWorkerScreen(Screen):
@@ -16,7 +17,7 @@ class AddWorkerScreen(Screen):
         if name.strip() and age.isdigit():
             try:
                 response = requests.post(
-                    "http://192.168.1.121:5000/workers",
+                    f"{get_local_ip()}/workers",
                     json={"name": name, "vek": int(age)}
                 )
                 if response.status_code == 201:

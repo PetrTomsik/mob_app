@@ -9,14 +9,14 @@ from kivy.uix.popup import Popup
 from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.button import Button
 from kivy.clock import Clock
-from kivy.properties import StringProperty, ListProperty
 import os
 import shutil
 import requests
+from local_ip import get_local_ip
 
 class CreateTaskScreen(Screen):
-    selected_image_path = StringProperty("")
-    selected_worker_ids = ListProperty([])
+    selected_image_path = ""
+    selected_worker_ids = []
     selected_company_id = None
     companies = []
 
@@ -30,7 +30,7 @@ class CreateTaskScreen(Screen):
 
     def load_companies(self):
         try:
-            response = requests.get("http://192.168.1.121:5000/companies")
+            response = requests.get(f"{get_local_ip()}/firms")
             if response.status_code == 200:
                 self.companies = response.json()
                 spinner = self.ids.company_spinner
@@ -40,7 +40,7 @@ class CreateTaskScreen(Screen):
 
     def load_workers(self):
         try:
-            response = requests.get("http://192.168.1.121:5000/workers")
+            response = requests.get(f"{get_local_ip()}/workers")
             if response.status_code != 200:
                 return
             workers = response.json()
@@ -109,11 +109,11 @@ class CreateTaskScreen(Screen):
             "description": description,
             "image_path": new_path,
             "worker_ids": self.selected_worker_ids,
-            "company_id": self.selected_company_id
+            "firm_id": self.selected_company_id
         }
 
         try:
-            r = requests.post("http://192.168.1.121:5000/tasks", json=payload)
+            r = requests.post(f"{get_local_ip()}/tasks", json=payload)
             if r.status_code == 201:
                 print("✅ Úkol uložen.")
                 self.reset_form()

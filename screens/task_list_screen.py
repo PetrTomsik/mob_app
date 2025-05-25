@@ -7,6 +7,7 @@ from kivy.uix.image import Image
 from kivy.uix.scrollview import ScrollView
 import requests
 import os
+from local_ip import get_local_ip
 
 
 class TaskListScreen(Screen):
@@ -14,7 +15,7 @@ class TaskListScreen(Screen):
         self.ids.tasks_container.clear_widgets()
 
         try:
-            response = requests.get("http://192.168.1.121:5000/tasks")
+            response = requests.get(f"{get_local_ip()}/tasks")
             if response.status_code != 200:
                 print(f"❌ Chyba API: {response.status_code}")
                 return

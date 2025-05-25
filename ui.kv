@@ -120,6 +120,14 @@ ScreenManager:
             size_hint_y: None
             height: 40
 
+        Spinner:
+            id: company_spinner
+            text: "Vyber firmu"
+            values: [company["name"] for company in root.companies] if root.companies else []
+            size_hint_y: None
+            height: 40
+            on_text: root.on_company_select(self.text)
+
         GridLayout:
             id: names_grid
             cols: 1

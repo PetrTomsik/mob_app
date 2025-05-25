@@ -80,6 +80,17 @@ def get_tasks():
     return jsonify(result)
 
 
+@app.route("/firms", methods=["GET"])
+def get_firms():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, nazev FROM firms")
+    firms = [{"id": row[0], "name": row[1]} for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return jsonify(firms)
+
+
 @app.route("/tasks", methods=["POST"])
 def add_task():
     data = request.json
@@ -87,6 +98,7 @@ def add_task():
     description = data.get("description")
     image_path = data.get("image_path")
     worker_ids = data.get("worker_ids", [])
+    firm_id = data.get("firm_id")
 
     if not title or not description or not image_path or not isinstance(worker_ids, list):
         return jsonify({"error": "Neplatná data"}), 400
@@ -94,9 +106,9 @@ def add_task():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO tasks (title, description, image_path)
-        VALUES (%s, %s, %s)
-    """, (title, description, image_path))
+          INSERT INTO tasks (title, description, image_path, firm_id)
+          VALUES (%s, %s, %s, %s)
+      """, (title, description, image_path, firm_id))
     task_id = cursor.lastrowid
 
     for wid in worker_ids:
