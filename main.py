@@ -6,9 +6,12 @@ from screens.main_screen import MainScreen
 from screens.add_worker import AddWorkerScreen
 from screens.create_task_screen import CreateTaskScreen
 from screens.task_list_screen import TaskListScreen
-
+from kivy.core.window import Window
+from custom_widgets import IconButton
 Builder.load_file("ui.kv")
 
+
+Window.clearcolor = (1, 1, 0.8, 1)  # světle žlutá RGBA
 
 class TaskApp(App):
     def build(self):

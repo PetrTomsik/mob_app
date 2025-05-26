@@ -8,160 +8,274 @@ ScreenManager:
     CreateTaskScreen:
         name: "create_task"
 
-<MainScreen>:
+<IconButton>:
+    size_hint_y: None
+    height: 50
+    canvas.before:
+        Color:
+            rgba: .2, .2, .2, 1  # šedá jako běžné tlačítko
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     BoxLayout:
-        orientation: 'vertical'
-        padding: 20
+        orientation: 'horizontal'
         spacing: 10
+        padding: 10
+        pos_hint: {"center_y": 0.5}
+
+        Image:
+            source: root.icon_path
+            size_hint: None, None
+            size: 32, 32
+            allow_stretch: True
+            keep_ratio: True
 
         Label:
-            text: "Hlavní menu"
-            font_size: 24
-            size_hint_y: None
-            height: 50
+            text: root.button_text
+            color: 1, 1, 1, 1
+            font_size: 16
+            valign: 'middle'
+            halign: 'left'
+            text_size: self.size
 
-        Button:
-            text: "➕ Přidat pracovníka"
-            size_hint_y: None
-            height: 50
-            on_press: app.root.current = "add_worker"
 
-        Button:
-            text: "📋 Zobrazit úkoly"
+<MainScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 0.98, 0.8, 1  # světle žlutá (LemonChiffon)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    ScrollView:
+        BoxLayout:
+            orientation: 'vertical'
             size_hint_y: None
-            height: 50
-            on_press: app.root.current = "task_list"
+            height: self.minimum_height
+            padding: 20
+            spacing: 10
 
-        Button:
-            text: "📝 Vytvořit úkol"
-            size_hint_y: None
-            height: 50
-            on_press: app.root.current = "create_task"
+            Label:
+                text: "Hlavní menu"
+                font_size: 24
+                color: 0, 0, 0, 1  # černá barva
+                size_hint_y: None
+                height: 50
+
+
+            IconButton:
+                icon_path: "assets/add_worker.png"
+                button_text: "Přidat pracovníka"
+                on_press: app.root.current = "add_worker"
+
+            IconButton:
+                icon_path: "assets/create_tasks.png"
+                button_text: "Vytvořit úkol"
+                on_press: app.root.current = "create_task"
+
+            IconButton:
+                icon_path: "assets/show_tasks.png"
+                button_text: "Zobrazit úkoly"
+                on_press: app.root.current = "task_list"
+
+            IconButton:
+                icon_path: "assets/show_factory.png"
+                button_text: "Továrny"
+                on_press: app.root.current = "task_list"
 
 <AddWorkerScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 20
-        spacing: 10
-
-        Label:
-            text: "Přidat nového pracovníka"
-            font_size: 20
+    canvas.before:
+        Color:
+            rgba: 1, 0.98, 0.8, 1  # světle žlutá (LemonChiffon)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    ScrollView:
+        BoxLayout:
+            orientation: 'vertical'
             size_hint_y: None
-            height: 30
+            height: self.minimum_height
+            padding: 20
+            spacing: 10
 
-        TextInput:
-            id: new_worker_name
-            hint_text: "Jméno pracovníka"
-            size_hint_y: None
-            height: 40
+            BoxLayout:
+                size_hint_y: None
+                height: 50
+                padding: 10
+                spacing: 10
 
-        TextInput:
-            id: new_worker_age
-            hint_text: "Věk"
-            input_filter: "int"
-            size_hint_y: None
-            height: 40
+                Button:
+                    size_hint: None, None
+                    size: 50, 50
+                    on_press: app.root.current = "main"
+                    background_normal: ''
+                    background_color: 0, 0, 0, 0
+                    Image:
+                        source: 'assets/left_arrow.png'
+                        center_x: self.parent.center_x
+                        center_y: self.parent.center_y
+                        size_hint: None, None
+                        size: 32, 32
 
-        Button:
-            text: "Uložit pracovníka"
-            size_hint_y: None
-            height: 40
-            on_press: root.save_worker()
+                Label:
+                    text: "Přidat nového pracovníka"
+                    font_size: 20
+                    color: 0, 0, 0, 1  # černá barva
+                    size_hint_y: None
+                    height: 30
 
-        Button:
-            text: "Zpět"
-            size_hint_y: None
-            height: 40
-            on_press: app.root.current = "main"
+            TextInput:
+                id: new_worker_name
+                hint_text: "Jméno pracovníka"
+                size_hint_y: None
+                height: 40
+
+            TextInput:
+                id: new_worker_age
+                hint_text: "Věk"
+                input_filter: "int"
+                size_hint_y: None
+                height: 40
+
+            Button:
+                text: "Uložit pracovníka"
+                size_hint_y: None
+                rgba: 0.8, 0.8, 0.8, 1
+                height: 40
+                on_press: root.save_worker()
 
 <TaskListScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 20
-        spacing: 10
+    canvas.before:
+        Color:
+            rgba: 1, 0.98, 0.8, 1  # světle žlutá (LemonChiffon)
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
-        Label:
-            text: "Seznam úkolů"
-            font_size: 20
+    ScrollView:
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            spacing: 10
+
+            BoxLayout:
+                size_hint_y: None
+                height: 50
+                spacing: 10
+
+                Button:
+                    size_hint: None, None
+                    size: 50, 50
+                    on_press: app.root.current = "main"
+                    background_normal: ''
+                    background_color: 0, 0, 0, 0
+                    Image:
+                        source: 'assets/left_arrow.png'
+                        center_x: self.parent.center_x
+                        center_y: self.parent.center_y
+                        size_hint: None, None
+                        size: 32, 32
+
+                Label:
+                    text: "Seznam úkolů"
+                    font_size: 20
+                    color: 0, 0, 0, 1  # černá barva
+                    size_hint_y: None
+                    height: 30
+
+            Button:
+                text: "Načíst úkoly"
+                size_hint_y: None
+                background_color: 0.8, 0.8, 0.8, 1
+                height: 40
+                on_press: root.show_tasks()
+
+            ScrollView:
+                GridLayout:
+                    id: tasks_container
+                    cols: 1
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: 10
+                    padding: 10
+
+<CreateTaskScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 0.98, 0.8, 1  # světle žlutá (LemonChiffon)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ScrollView:
+        BoxLayout:
+            orientation: 'vertical'
             size_hint_y: None
-            height: 40
+            height: self.minimum_height
+            padding: 20
+            spacing: 10
 
-        Button:
-            text: "Načíst úkoly"
-            size_hint_y: None
-            height: 40
-            on_press: root.show_tasks()
+            BoxLayout:
+                size_hint_y: None
+                height: 50
+                spacing: 10
 
-        ScrollView:
+                Button:
+                    size_hint: None, None
+                    size: 50, 50
+                    on_press: app.root.current = "main"
+                    background_normal: ''
+                    background_color: 0, 0, 0, 0
+                    Image:
+                        source: 'assets/left_arrow.png'
+                        center_x: self.parent.center_x
+                        center_y: self.parent.center_y
+                        size_hint: None, None
+                        size: 32, 32
+                Label:
+                    text: "Vytvořit nový úkol"
+                    font_size: 20
+                    color: 0, 0, 0, 1  # černá barva
+                    size_hint_y: None
+                    height: 40
+
+            Spinner:
+                id: company_spinner
+                text: "Vyber firmu"
+                values: [company["name"] for company in root.companies] if root.companies else []
+                size_hint_y: None
+                height: 40
+                on_text: root.on_company_select(self.text)
+
             GridLayout:
-                id: tasks_container
+                id: names_grid
                 cols: 1
                 size_hint_y: None
                 height: self.minimum_height
-                spacing: 10
-                padding: 10
+                row_default_height: 40
+                row_force_default: True
 
-        Button:
-            text: "Zpět"
-            size_hint_y: None
-            height: 40
-            on_press: app.root.current = "main"
+            TextInput:
+                id: title_input
+                hint_text: "Název úkolu"
+                size_hint_y: None
+                height: 40
 
-<CreateTaskScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 20
-        spacing: 10
+            TextInput:
+                id: description_input
+                hint_text: "Popis úkolu"
+                size_hint_y: None
+                height: 80
 
-        Label:
-            text: "Vytvořit nový úkol"
-            font_size: 20
-            size_hint_y: None
-            height: 40
+            Button:
+                text: "Vybrat obrázek"
+                size_hint_y: None
+                height: 40
+                on_press: root.open_filechooser()
 
-        Spinner:
-            id: company_spinner
-            text: "Vyber firmu"
-            values: [company["name"] for company in root.companies] if root.companies else []
-            size_hint_y: None
-            height: 40
-            on_text: root.on_company_select(self.text)
+            Button:
+                text: "Uložit úkol"
+                size_hint_y: None
+                height: 40
+                on_press: root.save_task()
 
-        GridLayout:
-            id: names_grid
-            cols: 1
-            size_hint_y: None
-            height: self.minimum_height
-            row_default_height: 40
-            row_force_default: True
-
-        TextInput:
-            id: title_input
-            hint_text: "Název úkolu"
-            size_hint_y: None
-            height: 40
-
-        TextInput:
-            id: description_input
-            hint_text: "Popis úkolu"
-            size_hint_y: None
-            height: 80
-
-        Button:
-            text: "Vybrat obrázek"
-            size_hint_y: None
-            height: 40
-            on_press: root.open_filechooser()
-
-        Button:
-            text: "Uložit úkol"
-            size_hint_y: None
-            height: 40
-            on_press: root.save_task()
-
-        Button:
-            text: "Zpět"
-            size_hint_y: None
-            height: 40
-            on_press: app.root.current = "main"
