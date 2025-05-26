@@ -28,8 +28,6 @@ ScreenManager:
             source: root.icon_path
             size_hint: None, None
             size: 32, 32
-            allow_stretch: True
-            keep_ratio: True
 
         Label:
             text: root.button_text
@@ -248,12 +246,44 @@ ScreenManager:
                 on_text: root.on_company_select(self.text)
 
             GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: 40
+
+                Label:
+                    id: start_label
+                    text: "Začátek: Nevybráno"
+                    color: 0, 0, 0, 1
+
+                Label:
+                    id: end_label
+                    text: "Konec: Nevybráno"
+                    color: 0, 0, 0, 1
+
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: 40
+                spacing: 10
+                padding: 0
+
+                Button:
+                    text: "Vybrat začátek"
+                    on_press: root.open_start_date_picker()
+
+                Button:
+                    text: "Vybrat konec"
+                    on_press: root.open_end_date_picker()
+
+            GridLayout:
                 id: names_grid
                 cols: 1
                 size_hint_y: None
+                color: 0, 0, 0, 1
                 height: self.minimum_height
                 row_default_height: 40
                 row_force_default: True
+                spacing: 5
 
             TextInput:
                 id: title_input

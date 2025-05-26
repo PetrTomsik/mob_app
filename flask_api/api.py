@@ -98,6 +98,8 @@ def add_task():
     description = data.get("description")
     image_path = data.get("image_path")
     worker_ids = data.get("worker_ids", [])
+    start_work = data.get("start_work")
+    end_work = data.get("end_work")
     firm_id = data.get("firm_id")
 
     if not title or not description or not image_path or not isinstance(worker_ids, list):
@@ -106,9 +108,9 @@ def add_task():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
-          INSERT INTO tasks (title, description, image_path, firm_id)
-          VALUES (%s, %s, %s, %s)
-      """, (title, description, image_path, firm_id))
+          INSERT INTO tasks (title, description, image_path,start_work,end_work,firm_id)
+          VALUES (%s, %s, %s, %s, %s, %s)
+      """, (title, description, image_path, start_work, end_work, firm_id))
     task_id = cursor.lastrowid
 
     for wid in worker_ids:

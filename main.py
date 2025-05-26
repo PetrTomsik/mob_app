@@ -1,6 +1,5 @@
 
 from kivy.lang import Builder
-from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from screens.main_screen import MainScreen
 from screens.add_worker import AddWorkerScreen
@@ -8,12 +7,13 @@ from screens.create_task_screen import CreateTaskScreen
 from screens.task_list_screen import TaskListScreen
 from kivy.core.window import Window
 from custom_widgets import IconButton
+from kivymd.app import MDApp
 Builder.load_file("ui.kv")
-
 
 Window.clearcolor = (1, 1, 0.8, 1)  # světle žlutá RGBA
 
-class TaskApp(App):
+
+class TaskApp(MDApp):
     def build(self):
         sm = ScreenManager()
         sm.add_widget(MainScreen(name="main"))

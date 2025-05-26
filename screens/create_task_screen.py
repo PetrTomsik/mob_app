@@ -1,5 +1,6 @@
 # screens/create_task_screen.py
-
+from kivymd.uix.pickers import MDDatePicker, MDTimePicker
+from datetime import datetime
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -14,11 +15,16 @@ import shutil
 import requests
 from local_ip import get_local_ip
 
+
 class CreateTaskScreen(Screen):
     selected_image_path = ""
     selected_worker_ids = []
     selected_company_id = None
     companies = []
+    start_date = None
+    end_date = None
+    start_work_datetime = None
+    end_work_datetime = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -60,7 +66,7 @@ class CreateTaskScreen(Screen):
             checkbox.assigned_id = worker_id
             checkbox.bind(active=self.on_checkbox_active)
 
-            label = Label(text=name)
+            label = Label(text=name, color=(0, 0, 0, 1))
             row.add_widget(checkbox)
             row.add_widget(label)
             self.ids.names_grid.add_widget(row)
@@ -109,9 +115,10 @@ class CreateTaskScreen(Screen):
             "description": description,
             "image_path": new_path,
             "worker_ids": self.selected_worker_ids,
+            "start_work": self.start_work_datetime.isoformat() if self.start_work_datetime else None,
+            "end_work": self.end_work_datetime.isoformat() if self.end_work_datetime else None,
             "firm_id": self.selected_company_id
-        }
-
+             }
         try:
             r = requests.post(f"{get_local_ip()}/tasks", json=payload)
             if r.status_code == 201:
@@ -129,3 +136,41 @@ class CreateTaskScreen(Screen):
         self.selected_worker_ids = []
         self.ids.company_spinner.text = "Vyber firmu"
         self.load_workers()
+        self.ids.start_label = "Vybrat začátek"
+        self.ids.end_label = "Vybrat konec"
+
+    def open_start_date_picker(self):
+        picker = MDDatePicker()
+        picker.bind(on_save=self.on_start_date_chosen)
+        picker.open()
+
+    def on_start_date_chosen(self, instance, value, date_range):
+        self.start_date = value
+        self.open_start_time_picker()
+
+    def open_start_time_picker(self):
+        picker = MDTimePicker()
+        picker.bind(time=self.on_start_time_chosen)
+        picker.open()
+
+    def on_start_time_chosen(self, instance, time_value):
+        self.start_work_datetime = datetime.combine(self.start_date, time_value)
+        self.ids.start_label.text = f"Začátek: {self.start_work_datetime.strftime('%d.%m.%Y %H:%M')}"
+
+    def open_end_date_picker(self):
+        picker = MDDatePicker()
+        picker.bind(on_save=self.on_end_date_chosen)
+        picker.open()
+
+    def on_end_date_chosen(self, instance, value, date_range):
+        self.end_date = value
+        self.open_end_time_picker()
+
+    def open_end_time_picker(self):
+        picker = MDTimePicker()
+        picker.bind(time=self.on_end_time_chosen)
+        picker.open()
+
+    def on_end_time_chosen(self, instance, time_value):
+        self.end_work_datetime = datetime.combine(self.end_date, time_value)
+        self.ids.end_label.text = f"Konec: {self.end_work_datetime.strftime('%d.%m.%Y %H:%M')}"
