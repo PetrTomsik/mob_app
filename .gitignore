@@ -5,6 +5,7 @@ images
 
 __pycache__
 *pyc
+*.pyc
 
 face_photo
 
