@@ -129,9 +129,16 @@ ScreenManager:
                 height: 40
 
             TextInput:
-                id: new_worker_age
-                hint_text: "Věk"
-                input_filter: "int"
+                id: new_worker_date_of_birth_input
+                hint_text: "Datum narození"
+                readonly: True
+                on_focus: if self.focus: root.open_date_picker()
+                size_hint_y: None
+                height: 40
+
+            TextInput:
+                id: new_worker_address
+                hint_text: "Bydliště"
                 size_hint_y: None
                 height: 40
 

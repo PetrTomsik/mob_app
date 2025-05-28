@@ -62,7 +62,11 @@ class CreateTaskScreen(Screen):
             name = worker["name"]
 
             row = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-            checkbox = CheckBox()
+            checkbox = CheckBox(
+                color=(0, 0, 0, 1),  # pro jistotu, i když barva na checkbox nemá přímý vliv
+                background_checkbox_normal='atlas://data/images/defaulttheme/checkbox_off',
+                background_checkbox_down='atlas://data/images/defaulttheme/checkbox_on'
+                )
             checkbox.assigned_id = worker_id
             checkbox.bind(active=self.on_checkbox_active)
 
@@ -136,8 +140,8 @@ class CreateTaskScreen(Screen):
         self.selected_worker_ids = []
         self.ids.company_spinner.text = "Vyber firmu"
         self.load_workers()
-        self.ids.start_label = "Vybrat začátek"
-        self.ids.end_label = "Vybrat konec"
+        self.ids.start_label.text = "Vybrat začátek"
+        self.ids.end_label.text = "Vybrat konec"
 
     def open_start_date_picker(self):
         picker = MDDatePicker()

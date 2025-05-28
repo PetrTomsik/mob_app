@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
@@ -21,8 +23,8 @@ def get_connection():
 def get_workers():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, vek FROM workers")
-    data = [{"id": row[0], "name": row[1], "vek": row[2]} for row in cursor.fetchall()]
+    cursor.execute("SELECT id, name, date_of_birth, address FROM workers")
+    data = [{"id": row[0], "name": row[1], "date_of_birth": row[2], "address": row[3]} for row in cursor.fetchall()]
     cursor.close()
     conn.close()
     return jsonify(data)
@@ -32,17 +34,28 @@ def get_workers():
 def add_worker():
     data = request.json
     name = data.get("name")
-    vek = data.get("vek")
+    date_of_birth = data.get("date_of_birth")
+    address = data.get("address")
 
-    if not name or not isinstance(vek, int):
+    if not name or not date_of_birth or not address:
         return jsonify({"error": "Neplatná data"}), 400
+
+    try:
+        # Ověříme, že datum je ve formátu YYYY-MM-DD
+        datetime.strptime(date_of_birth, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({"error": "Neplatný formát data. Očekává se YYYY-MM-DD"}), 400
 
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO workers (name, vek) VALUES (%s, %s)", (name, vek))
+    cursor.execute(
+        "INSERT INTO workers (name, date_of_birth, address) VALUES (%s, %s, %s)",
+        (name, date_of_birth, address)
+    )
     conn.commit()
     cursor.close()
     conn.close()
+
     return jsonify({"status": "Pracovník uložen"}), 201
 
 
