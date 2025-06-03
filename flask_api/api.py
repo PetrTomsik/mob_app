@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from werkzeug.utils import secure_filename
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
@@ -9,6 +9,9 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from config import DB_CONFIG
+
+UPLOAD_FOLDER = "workers_photos"  # nebo jiná složka
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app = Flask(__name__)
 CORS(app)
@@ -32,10 +35,11 @@ def get_workers():
 
 @app.route("/workers", methods=["POST"])
 def add_worker():
-    data = request.json
-    name = data.get("name")
-    date_of_birth = data.get("date_of_birth")
-    address = data.get("address")
+    name = request.form.get("name")
+    date_of_birth = request.form.get("date_of_birth")
+    address = request.form.get("address")
+    photo = request.files.get("photo")
+
 
     if not name or not date_of_birth or not address:
         return jsonify({"error": "Neplatná data"}), 400
@@ -46,11 +50,18 @@ def add_worker():
     except ValueError:
         return jsonify({"error": "Neplatný formát data. Očekává se YYYY-MM-DD"}), 400
 
+    photo_path = None
+
+    if photo:
+        filename = secure_filename(photo.filename)
+        photo_path = os.path.join(UPLOAD_FOLDER, filename)
+        photo.save(photo_path)
+
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO workers (name, date_of_birth, address) VALUES (%s, %s, %s)",
-        (name, date_of_birth, address)
+        "INSERT INTO workers (name, date_of_birth, address, photo_path) VALUES (%s, %s, %s, %s)",
+        (name, date_of_birth, address, photo_path)
     )
     conn.commit()
     cursor.close()
