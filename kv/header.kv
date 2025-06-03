@@ -1,5 +1,6 @@
 <CustomHeader@RelativeLayout>:
     header_text: "Nadpis"
+    show_back_button: True
     size_hint_y: None
     height: 70
 
@@ -28,6 +29,8 @@
         on_press: app.root.current = "main"
         background_normal: ''
         background_color: 0, 0, 0, 0
+        opacity: 1 if root.show_back_button else 0
+        disabled: not root.show_back_button
 
         Image:
             source: 'assets/left_arrow.png'
