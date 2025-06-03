@@ -1,0 +1,28 @@
+<IconButton>:
+    size_hint_y: None
+    height: 50
+    canvas.before:
+        Color:
+            rgba: .2, .2, .2, 1  # šedá jako běžné tlačítko
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'horizontal'
+        spacing: 10
+        padding: 10
+        pos_hint: {"center_y": 0.5}
+
+        Image:
+            source: root.icon_path
+            size_hint: None, None
+            size: 32, 32
+
+        Label:
+            text: root.button_text
+            color: 1, 1, 1, 1
+            font_size: 16
+            valign: 'middle'
+            halign: 'left'
+            text_size: self.size

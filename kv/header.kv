@@ -1,0 +1,37 @@
+<CustomHeader@RelativeLayout>:
+    header_text: "Nadpis"
+    size_hint_y: None
+    height: 70
+
+    canvas.before:
+        Color:
+            rgba: 1, 0.98, 0.8, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    # Nadpis vystředěný
+    Label:
+        text: root.header_text
+        font_size: 20
+        color: 0, 0, 0, 1
+        size_hint: None, None
+        size: self.texture_size
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+    # Tlačítko vlevo se šipkou
+    Button:
+        id: back_button
+        size_hint: None, None
+        size: 50, 50
+        pos_hint: {"x": 0.02, "center_y": 0.5}
+        on_press: app.root.current = "main"
+        background_normal: ''
+        background_color: 0, 0, 0, 0
+
+        Image:
+            source: 'assets/left_arrow.png'
+            size_hint: None, None
+            size: 32, 32
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y

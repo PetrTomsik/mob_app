@@ -19,3 +19,6 @@ config.py	Přihlašovací údaje a název databáze (lepší než psát do model
 database/init.sql	SQL skript pro vytvoření tabulek v MySQL\
 images/	Složka, kam se ukládají obrázky uživatelů\
 utils/image_utils.py	Pomocné funkce pro práci s obrázky
+
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+.venv311\Scripts\Activate.ps1

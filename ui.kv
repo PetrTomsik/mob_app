@@ -1,8 +1,9 @@
+
 ScreenManager:
     MainScreen:
         name: "main"
-    AddWorkerScreen:
-        name: "add_worker"
+    WorkerScreen:
+        name: "worker_manager"
     TaskListScreen:
         name: "task_list"
     CreateTaskScreen:
@@ -37,6 +38,96 @@ ScreenManager:
             halign: 'left'
             text_size: self.size
 
+<WorkerScreen>:
+    BoxLayout:
+        orientation: "vertical"
+
+        canvas.before:
+            Color:
+                rgba: 1, 0.98, 0.8, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                padding: 20
+                spacing: 10
+
+                IconButton:
+                    icon_path: "assets/add_worker.png"
+                    button_text: "Přidat Zaměstnance"
+                    on_press: app.root.current = "add_worker"
+
+                IconButton:
+                    icon_path: "assets/remove_person.png"
+                    button_text: "Smazat Zaměstnance"
+                    on_press: app.root.current = "delete_worker"
+
+                IconButton:
+                    icon_path: "assets/list_worker.png"
+                    button_text: "Zobrazit Zaměstnance"
+                    on_press: app.root.current = "show_worker"
+
+<DeleteWorkerScreen>:
+    ScrollView:
+        BoxLayout:
+            id: delete_worker_list
+            orientation: 'vertical'
+            size_hint_y: None
+            height: self.minimum_height
+            padding: 10
+            spacing: 10
+
+
+<ShowWorkerScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 0.98, 0.8, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            padding: 10
+            spacing: 10
+
+            Button:
+                size_hint: None, None
+                size: 50, 50
+                on_press: app.root.current = "main"
+                background_normal: ''
+                background_color: 0, 0, 0, 0
+                Image:
+                    source: 'assets/left_arrow.png'
+                    center_x: self.parent.center_x
+                    center_y: self.parent.center_y
+                    size_hint: None, None
+                    size: 32, 32
+
+            Label:
+                text: "List pracovníků"
+                font_size: 20
+                color: 0, 0, 0, 1
+                size_hint_y: None
+                height: 30
+
+        ScrollView:
+            BoxLayout:
+                id: worker_list  # ✅ Teď správně!
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                padding: 10
+                spacing: 10
 
 <MainScreen>:
     canvas.before:
@@ -62,9 +153,9 @@ ScreenManager:
 
 
             IconButton:
-                icon_path: "assets/add_worker.png"
-                button_text: "Přidat pracovníka"
-                on_press: app.root.current = "add_worker"
+                icon_path: "assets/worker.png"
+                button_text: "Pracovníka"
+                on_press: app.root.current = "worker_manager"
 
             IconButton:
                 icon_path: "assets/create_tasks.png"

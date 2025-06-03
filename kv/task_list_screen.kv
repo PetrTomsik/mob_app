@@ -1,0 +1,23 @@
+<TaskListScreen>:
+    BaseScreenLayout:
+        BoxLayout:
+            orientation: 'vertical'
+
+            CustomHeader:
+                header_text: "Seznam úkolů"
+
+            Button:
+                text: "Načíst úkoly"
+                size_hint_y: None
+                background_color: 0.8, 0.8, 0.8, 1
+                height: 40
+                on_press: root.show_tasks()
+
+            ScrollView:
+                GridLayout:
+                    id: tasks_container
+                    cols: 1
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: 10
+                    padding: 10

@@ -1,0 +1,101 @@
+<WorkerScreen>:
+    BaseScreenLayout:
+        CustomHeader:
+            header_text: "Pracovník"
+
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                padding: 20
+                spacing: 10
+
+                IconButton:
+                    icon_path: "assets/add_worker.png"
+                    button_text: "Přidat Zaměstnance"
+                    on_press: app.root.current = "add_worker"
+
+                IconButton:
+                    icon_path: "assets/remove_person.png"
+                    button_text: "Smazat Zaměstnance"
+                    on_press: app.root.current = "delete_worker"
+
+                IconButton:
+                    icon_path: "assets/list_worker.png"
+                    button_text: "Zobrazit Zaměstnance"
+                    on_press: app.root.current = "show_worker"
+
+
+<DeleteWorkerScreen>:
+    BaseScreenLayout:
+        BoxLayout:
+            orientation: 'vertical'
+
+            CustomHeader:
+                id: header
+                header_text: "Odstranit pracovníka"
+
+            ScrollView:
+                BoxLayout:
+                    id: delete_worker_list
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: 10
+                    spacing: 10
+
+
+<ShowWorkerScreen>:
+    BaseScreenLayout:
+        CustomHeader:
+            header_text: "List pracovníků"
+
+        ScrollView:
+            BoxLayout:
+                id: worker_list  # ✅ Teď správně!
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                padding: 10
+                spacing: 10
+
+
+<AddWorkerScreen>:
+    BaseScreenLayout:
+        CustomHeader:
+            header_text: "Přidat nového pracovníka"
+
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                padding: 20
+                spacing: 10
+
+                TextInput:
+                    id: new_worker_name
+                    hint_text: "Jméno pracovníka"
+                    size_hint_y: None
+                    height: 40
+
+                TextInput:
+                    id: new_worker_date_of_birth_input
+                    hint_text: "Datum narození"
+                    readonly: True
+                    on_focus: if self.focus: root.open_date_picker()
+                    size_hint_y: None
+                    height: 40
+
+                TextInput:
+                    id: new_worker_address
+                    hint_text: "Bydliště"
+                    size_hint_y: None
+                    height: 40
+
+                Button:
+                    text: "Uložit pracovníka"
+                    size_hint_y: None
+                    height: 40
+                    on_press: root.save_worker()

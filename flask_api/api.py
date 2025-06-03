@@ -135,5 +135,25 @@ def add_task():
     return jsonify({"status": "Úkol uložen"}), 201
 
 
+@app.route("/workers/<int:worker_id>", methods=["DELETE"])
+def delete_worker(worker_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        # Nejprve smažeme vazby ze spojovací tabulky
+        cursor.execute("DELETE FROM task_workers WHERE worker_id = %s", (worker_id,))
+
+        # Poté smažeme pracovníka
+        cursor.execute("DELETE FROM workers WHERE id = %s", (worker_id,))
+
+        conn.commit()
+        return jsonify({"status": "Pracovník smazán"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
