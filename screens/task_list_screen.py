@@ -34,10 +34,10 @@ class TaskListScreen(Screen):
                 img = Image(size_hint=(None, 1), width=100)
 
             text_box = BoxLayout(orientation='vertical')
-            text_box.add_widget(Label(text=task["title"], bold=True))
-            text_box.add_widget(Label(text=task["description"]))
-            text_box.add_widget(Label(text=f"Přiřazeno: {', '.join(task['workers'])}"))
-            text_box.add_widget(Label(text=f"Vytvořeno: {task['datum']}"))
+            text_box.add_widget(Label(text=task["title"], bold=True, color=(0, 0, 0, 1)))
+            text_box.add_widget(Label(text=task["description"], color=(0, 0, 0, 1)))
+            text_box.add_widget(Label(text=f"Přiřazeno: {', '.join(task['workers'])}", color=(0, 0, 0, 1)))
+            text_box.add_widget(Label(text=f"Vytvořeno: {task['datum']}", color=(0, 0, 0, 1)))
 
             task_box.add_widget(img)
             task_box.add_widget(text_box)
