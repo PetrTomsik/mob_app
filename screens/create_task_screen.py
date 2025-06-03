@@ -1,4 +1,6 @@
 # screens/create_task_screen.py
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
 from kivymd.uix.pickers import MDDatePicker, MDTimePicker
 from datetime import datetime
 from kivy.uix.screenmanager import Screen
@@ -175,4 +177,28 @@ class CreateTaskScreen(Screen):
 
     def on_end_time_chosen(self, instance, time_value):
         self.end_work_datetime = datetime.combine(self.end_date, time_value)
+
+        if hasattr(self, 'start_work_datetime'):
+            if self.end_work_datetime < self.start_work_datetime:
+                # Chyba: konec je dřív než začátek
+                self.show_error_dialog("Konec nemůže být dříve než začátek.")
+                return
+
         self.ids.end_label.text = f"Konec: {self.end_work_datetime.strftime('%d.%m.%Y %H:%M')}"
+
+    def show_error_dialog(self, message):
+        if not hasattr(self, '_error_dialog') or self._error_dialog is None:
+            self._error_dialog = MDDialog(
+                title="Neplatný čas",
+                text=message,
+                buttons=[
+                    MDFlatButton(
+                        text="OK",
+                        on_release=lambda x: self._error_dialog.dismiss()
+                    ),
+                ],
+            )
+        else:
+            self._error_dialog.text = message
+
+        self._error_dialog.open()
