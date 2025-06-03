@@ -167,6 +167,26 @@
                     size_hint_y: None
                     height: 40
 
+                Label:
+                    text: "Vybraná fotka:"
+                    size_hint_y: None
+                    height: 30
+
+                Image:
+                    id: photo_preview
+                    size_hint_y: None
+                    height: 120
+                    source: ""
+                    allow_stretch: True
+                    keep_ratio: True
+
+                MDRaisedButton:
+                    id: photo_menu_button
+                    text: "Vyber fotku"
+                    size_hint_y: None
+                    height: 40
+                    on_release: root.open_photo_menu()
+
                 Button:
                     text: "Uložit pracovníka"
                     size_hint_y: None
