@@ -28,6 +28,7 @@ class CreateTaskScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._error_dialog = None
         Clock.schedule_once(self.initialize_data)
 
     def initialize_data(self, dt):
@@ -200,5 +201,4 @@ class CreateTaskScreen(Screen):
             )
         else:
             self._error_dialog.text = message
-
         self._error_dialog.open()
