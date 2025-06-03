@@ -1,6 +1,7 @@
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivymd.app import MDApp
+from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager
 
 # Import všech tříd, které se používají v ui.kv
@@ -11,8 +12,6 @@ from screens.show_worker import ShowWorkerScreen  # ✅ DŮLEŽITÉ
 from screens.create_task_screen import CreateTaskScreen
 from screens.task_list_screen import TaskListScreen
 from screens.delete_worker import DeleteWorkerScreen
-from kivy.core.window import Window
-
 
 from custom_widgets import IconButton
 # Nastavení barvy pozadí
@@ -40,9 +39,8 @@ class TaskApp(MDApp):
         sm.add_widget(AddWorkerScreen(name="add_worker"))
         sm.add_widget(DeleteWorkerScreen(name="delete_worker"))
 
-        Window.title = "Startovní titulek"
-
         sm.bind(current=self.on_screen_change)
+        self.title = "Hlavní obrazovka"
         return sm
 
     def on_screen_change(self, instance, screen_name):
@@ -56,9 +54,11 @@ class TaskApp(MDApp):
             "delete_worker": "Smazat pracovníka",
         }
         new_title = titles.get(screen_name, "Moje aplikace")
-        Window.title = new_title
-        print(f"🔁 Přepnuto na: {screen_name} → {new_title}")
 
+        # ✅ Změna zde: nastavíme .title na MDApp
+        self.title = new_title
+
+        print(f"🔁 Přepnuto na: {screen_name} → {new_title}")
 
 if __name__ == "__main__":
     TaskApp().run()
