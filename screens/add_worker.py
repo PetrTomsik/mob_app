@@ -63,11 +63,12 @@ class AddWorkerScreen(Screen):
         self.menu.dismiss()
 
     def save_worker(self):
-        name = self.ids.new_worker_name.text.strip()
+        first_name = self.ids.new_worker_first_name.text.strip()
+        last_name = self.ids.new_worker_last_name.text.strip()
         address = self.ids.new_worker_address.text.strip()
         date_str = self.ids.new_worker_date_of_birth_input.text.strip()
 
-        if not (name and address and date_str):
+        if not (first_name and last_name and address and date_str):
             self.show_popup("Neplatná data", "Vyplň všechna pole.")
             return
 
@@ -79,7 +80,8 @@ class AddWorkerScreen(Screen):
             return
 
         data = {
-            "name": name,
+            "first_name": first_name,
+            "last_name": last_name,
             "date_of_birth": date_for_mysql,
             "address": address,
         }
@@ -94,13 +96,14 @@ class AddWorkerScreen(Screen):
         try:
             response = requests.post(f"{get_local_ip()}/workers", data=data, files=files)
             if response.status_code == 201:
-                self.show_popup("Úspěch", f"Pracovník '{name}' byl uložen.")
+                self.show_popup("Úspěch", f"Pracovník '{first_name} {last_name}' byl uložen.")
             else:
                 self.show_popup("Chyba API", response.text)
         except Exception as e:
             self.show_popup("Chyba", f"Nepodařilo se připojit k API: {e}")
 
-        self.ids.new_worker_name.text = ""
+        self.ids.new_worker_first_name.text = ""
+        self.ids.new_worker_last_name.text = ""
         self.ids.new_worker_date_of_birth_input.text = ""
         self.ids.new_worker_address.text = ""
         self.ids.photo_preview.source = ""

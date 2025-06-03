@@ -60,7 +60,7 @@ class CreateTaskScreen(Screen):
 
         for worker in workers:
             worker_id = worker["id"]
-            name = worker["name"]
+            name = f"{worker['first_name']} {worker['last_name']}"
 
             row = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
             checkbox = CheckBox(

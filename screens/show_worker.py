@@ -6,13 +6,6 @@ from kivy.clock import Clock
 
 
 class ShowWorkerScreen(Screen):
-    #
-    # def on_pre_enter(self, *args):
-    #     self.load_workers()
-    #
-    # def load_workers(self):
-    #     print("Načítám pracovníky...")
-    #     self.ids.worker_list.clear_widgets()
     def on_pre_enter(self, *args):
         Clock.schedule_once(lambda dt: self.load_workers(), 0)
 
@@ -25,7 +18,8 @@ class ShowWorkerScreen(Screen):
                 workers = response.json()
                 for worker in workers:
                     label = Label(
-                        text=f"{worker['name']} ({worker['date_of_birth']}) – {worker['address']}",
+                        text=f"{worker['first_name']} {worker['last_name']} ({worker['date_of_birth']}) –"
+                             f" {worker['address']}",
                         size_hint_y=None,
                         height=30,
                         color=(0, 0, 0, 1),

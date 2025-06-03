@@ -19,11 +19,12 @@ class DeleteWorkerScreen(Screen):
                 for worker in workers:
                     row = BoxLayout(size_hint_y=None, height=40, spacing=10)
                     label = Label(
-                        text=f"{worker['name']} ({worker['date_of_birth']}) – {worker['address']}",
+                        text=f"{worker['first_name']} {worker['last_name']} ({worker['date_of_birth']}) – "
+                             f"{worker['address']}",
                         size_hint_x=0.8,
                         color=(0, 0, 0, 1)
                     )
-                    btn = Button(text="🗑️", size_hint_x=0.2, on_press=lambda inst, wid=worker["id"]: self.delete_worker(wid))
+                    btn = Button(text="🗑️", size_hint_x=0.2, on_press=lambda inst, wid=worker["id"]:self.delete_worker(wid))
                     row.add_widget(label)
                     row.add_widget(btn)
                     self.ids.delete_worker_list.add_widget(row)

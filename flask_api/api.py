@@ -26,8 +26,8 @@ def get_connection():
 def get_workers():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, date_of_birth, address FROM workers")
-    data = [{"id": row[0], "name": row[1], "date_of_birth": row[2], "address": row[3]} for row in cursor.fetchall()]
+    cursor.execute("SELECT id, first_name, last_name , date_of_birth, address FROM workers")
+    data = [{"id": row[0], "first_name": row[1], "last_name": row[2], "date_of_birth": row[3], "address": row[4]} for row in cursor.fetchall()]
     cursor.close()
     conn.close()
     return jsonify(data)
@@ -35,13 +35,13 @@ def get_workers():
 
 @app.route("/workers", methods=["POST"])
 def add_worker():
-    name = request.form.get("name")
+    first_name = request.form.get("first_name")
+    last_name = request.form.get("last_name")
     date_of_birth = request.form.get("date_of_birth")
     address = request.form.get("address")
     photo = request.files.get("photo")
 
-
-    if not name or not date_of_birth or not address:
+    if not first_name or not last_name or not date_of_birth or not address:
         return jsonify({"error": "Neplatná data"}), 400
 
     try:
@@ -60,8 +60,8 @@ def add_worker():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO workers (name, date_of_birth, address, photo_path) VALUES (%s, %s, %s, %s)",
-        (name, date_of_birth, address, photo_path)
+        "INSERT INTO workers (first_name, last_name, date_of_birth, address, photo_path) VALUES (%s, %s, %s, %s, %s)",
+        (first_name, last_name, date_of_birth, address, photo_path)
     )
     conn.commit()
     cursor.close()
@@ -84,7 +84,7 @@ def get_tasks():
 
         # najdeme přiřazené pracovníky
         cursor.execute("""
-            SELECT w.name FROM workers w
+            SELECT w.first_name FROM workers w
             JOIN task_workers tw ON w.id = tw.worker_id
             WHERE tw.task_id = %s
         """, (task_id,))
@@ -165,6 +165,7 @@ def delete_worker(worker_id):
     finally:
         cursor.close()
         conn.close()
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

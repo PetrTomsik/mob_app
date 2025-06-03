@@ -126,7 +126,7 @@
 
         ScrollView:
             BoxLayout:
-                id: worker_list  # ✅ Teď správně!
+                id: worker_list
                 orientation: 'vertical'
                 size_hint_y: None
                 height: self.minimum_height
@@ -148,8 +148,14 @@
                 spacing: 10
 
                 TextInput:
-                    id: new_worker_name
+                    id: new_worker_first_name
                     hint_text: "Jméno pracovníka"
+                    size_hint_y: None
+                    height: 40
+
+                TextInput:
+                    id: new_worker_last_name
+                    hint_text: "Příjmení pracovníka"
                     size_hint_y: None
                     height: 40
 
