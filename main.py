@@ -8,7 +8,7 @@ from kivy.uix.screenmanager import ScreenManager
 from screens.main_screen import MainScreen
 from screens.worker_screen import WorkerScreen
 from screens.add_worker import AddWorkerScreen
-from screens.show_worker import ShowWorkerScreen  # ✅ DŮLEŽITÉ
+from screens.show_worker import ShowWorkerScreen, WorkerCard
 from screens.create_task_screen import CreateTaskScreen
 from screens.task_list_screen import TaskListScreen
 from screens.delete_worker import DeleteWorkerScreen
