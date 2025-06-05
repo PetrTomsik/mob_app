@@ -8,8 +8,11 @@ __pycache__
 *.pyc
 
 face_photo
+workers_photos
+Dz
 
 .DS_Store
 *.l
 
 /workers_photos/petr_01.jpg
+/Dz/DZ_logo.png
