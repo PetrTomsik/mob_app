@@ -22,12 +22,15 @@ def get_connection():
 
 
 # --- WORKERS ---
+
+
 @app.route("/workers", methods=["GET"])
-def get_workers():
+def get_workers_with_photo():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, first_name, last_name , date_of_birth, address FROM workers")
-    data = [{"id": row[0], "first_name": row[1], "last_name": row[2], "date_of_birth": row[3], "address": row[4]} for row in cursor.fetchall()]
+    cursor.execute("SELECT id, first_name, last_name , date_of_birth, address, photo_path FROM workers")
+    data = [{"id": row[0], "first_name": row[1], "last_name": row[2], "date_of_birth": row[3], "address": row[4],
+             "photo": row[5]} for row in cursor.fetchall()]
     cursor.close()
     conn.close()
     return jsonify(data)

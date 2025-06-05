@@ -120,22 +120,58 @@
                     padding: 10
                     spacing: 10
 
+<WorkerCard@MDCard>:
+    name: ""
+    date_of_birth: ""
+    address: ""
+    photo_path: ""
+    orientation: "horizontal"
+    size_hint_y: None
+    height: 120
+    padding: 10
+    spacing: 15
+    ripple_behavior: True
+    elevation: 4
+    radius: [15, 15, 15, 15]
+
+    FitImage:
+        source: root.photo_path if root.photo_path else "assets/worker.png"
+        size_hint: None, None
+        size: 80, 80
+
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 5
+
+        MDLabel:
+            text: root.name
+            color: 0, 0, 0, 1
+            font_style: "Subtitle1"
+            theme_text_color: "Primary"
+
+        MDLabel:
+            color: 0, 0, 0, 1
+            text: root.date_of_birth
+            theme_text_color: "Secondary"
+
+        MDLabel:
+            color: 0, 0, 0, 1
+            text: root.address
+            theme_text_color: "Secondary"
 
 <ShowWorkerScreen>:
     BaseScreenLayout:
         CustomHeader:
-            header_text: "List pracovníků"
-            show_back_button: True
+            header_text: "Seznam pracovníků"
 
         ScrollView:
-            BoxLayout:
+            GridLayout:
                 id: worker_list
-                orientation: 'vertical'
+                cols: 1
                 size_hint_y: None
                 height: self.minimum_height
                 padding: 10
                 spacing: 10
-
 
 <AddWorkerScreen>:
     BaseScreenLayout:
